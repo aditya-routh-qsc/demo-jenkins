@@ -2,12 +2,11 @@ pipeline {
   agent any  // runs on the built-in node (controller)
 
   environment {
-    // Change to where you want the file(s) to appear on this machine
-    TARGET_DIR = '/home/aditya/downloads/builds'
+    // Change to your desired local path
+    TARGET_DIR = 'C:\\Users\\aditya\\Downloads\\builds'
   }
 
   options {
-    // Keep logs cleaner; optional
     timestamps()
   }
 
@@ -20,12 +19,11 @@ pipeline {
 
     stage('Build') {
       steps {
-        sh '''
-          set -e
-          rm -rf build
-          mkdir -p build
-          # Your real build command(s) go here
-          echo "hello" > build/app.bin
+        bat '''
+          if exist build rmdir /s /q build
+          mkdir build
+          rem Your real build commands here
+          echo hello> build\\app.bin
         '''
       }
     }
@@ -39,11 +37,9 @@ pipeline {
 
   post {
     success {
-      // Copy artifacts to your local drop folder on the same machine
-      sh '''
-        set -e
-        mkdir -p "${TARGET_DIR}"
-        cp -r build/* "${TARGET_DIR}/"
+      bat '''
+        if not exist "%TARGET_DIR%" mkdir "%TARGET_DIR%"
+        xcopy /y /e /i build "%TARGET_DIR%\\"
       '''
       echo "Artifacts copied to ${env.TARGET_DIR}"
     }
