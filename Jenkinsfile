@@ -1,13 +1,36 @@
 pipeline {
-  agent any
+  agent any  // runs on the built-in node (controller)
+
+  environment {
+    // Change to where you want the file(s) to appear on this machine
+    TARGET_DIR = '/home/aditya/downloads/builds'
+  }
+
+  options {
+    // Keep logs cleaner; optional
+    timestamps()
+  }
 
   stages {
-    stage('Build') {
+    stage('Checkout') {
       steps {
-        sh 'echo "Building…" && mkdir -p build && echo "hello" > build/app.bin'
+        checkout scm
       }
     }
-    stage('Archive') {
+
+    stage('Build') {
+      steps {
+        sh '''
+          set -e
+          rm -rf build
+          mkdir -p build
+          # Your real build command(s) go here
+          echo "hello" > build/app.bin
+        '''
+      }
+    }
+
+    stage('Archive (optional but recommended)') {
       steps {
         archiveArtifacts artifacts: 'build/**', fingerprint: true
       }
@@ -16,22 +39,13 @@ pipeline {
 
   post {
     success {
-      // Run just this part on your local machine agent
-      node('my-laptop') {
-        unstashOrCopy()
-      }
+      // Copy artifacts to your local drop folder on the same machine
+      sh '''
+        set -e
+        mkdir -p "${TARGET_DIR}"
+        cp -r build/* "${TARGET_DIR}/"
+      '''
+      echo "Artifacts copied to ${env.TARGET_DIR}"
     }
   }
-}
-
-// Shared method if you want: copy from Jenkins master to your local agent
-def unstashOrCopy() {
-  // Option 1: re-use artifacts by copying from master using 'copyArtifacts' if this is a multibranch / external job
-  // library step alternative if same pipeline: use 'dir' + 'download'—but easiest is re-run step on agent or fetch via curl
-  step([$class: 'CopyArtifact',
-        projectName: env.JOB_NAME,
-        selector: [$class: 'SpecificBuildSelector', buildNumber: env.BUILD_NUMBER],
-        filter: 'build/**', fingerprintArtifacts: true])
-
-  sh 'mkdir -p /path/to/my/local/drop && cp -r build/* /path/to/my/local/drop/'
 }
