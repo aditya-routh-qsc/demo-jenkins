@@ -1,31 +1,26 @@
-
 pipeline {
   agent any  // runs on the built-in node (Linux/WSL controller)
 
   environment {
-    // ✅ Use the WSL path to the Windows folder
+    // WSL path to your Windows folder
     TARGET_DIR = '/mnt/c/Users/aditya.routh/Downloads/builds'
   }
 
-  options {
-    timestamps()
-  }
+  options { timestamps() }
 
   stages {
     stage('Checkout') {
-      steps {
-        checkout scm
-      }
+      steps { checkout scm }
     }
 
     stage('Build') {
       steps {
         sh '''
-          set -euxo pipefail
+          set -eux
           rm -rf build
           mkdir -p build
 
-          # TODO: Replace this placeholder with your actual build commands
+          # TODO: Replace this placeholder with your real build commands
           # Example (Node): npm ci && npm run build
           # Example (Maven): mvn -B -DskipTests clean package
           # Example (Gradle): ./gradlew clean build -x test
@@ -46,9 +41,8 @@ pipeline {
 
   post {
     success {
-      // Copy to your Windows downloads folder (via WSL mount)
       sh '''
-        set -euxo pipefail
+        set -eux
         echo "=== Ensure target dir exists ==="
         mkdir -p "${TARGET_DIR}"
         ls -ld "${TARGET_DIR}"
