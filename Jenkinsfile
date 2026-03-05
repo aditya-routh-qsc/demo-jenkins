@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     // Change this to the path on your Linux box where you want files copied
-    TARGET_DIR = 'C:\Users\aditya.routh\Downloads\builds'
+    TARGET_DIR = 'C:/Users/aditya.routh/Downloads/builds'
   }
 
   options {
@@ -48,4 +48,5 @@ pipeline {
     }
   }
 }
+
 
