@@ -24,7 +24,7 @@ rm -rf package
 mkdir -p package/repo
 
 # Copy everything except VCS and typical transient dirs/files
-# Use rsync if available (fast, preserves structure), otherwise fall back to find/cp
+# Use rsync if available (fast, preserves structure), otherwise fall back to tar
 if command -v rsync >/dev/null 2>&1; then
   rsync -a \
     --exclude='.git/' \
@@ -86,5 +86,3 @@ ls -la "${TARGET_DIR}" | sed -n '1,200p'
     }
   }
 }
-```
-
