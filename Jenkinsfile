@@ -17,7 +17,7 @@ pipeline {
   post {
     success {
       // Run just this part on your local machine agent
-      node('Demo-Jenkins') {
+      node('Built-In Node') {
         unstashOrCopy()
       }
     }
@@ -34,4 +34,5 @@ def unstashOrCopy() {
         filter: 'build/**', fingerprintArtifacts: true])
 
   sh 'mkdir -p /path/to/my/local/drop && cp -r build/* /path/to/my/local/drop/'
+
 }
