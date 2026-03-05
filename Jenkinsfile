@@ -1,9 +1,9 @@
 pipeline {
-  agent any  // runs on the built-in node (controller)
+  agent any  // runs on the built-in node (Linux controller)
 
   environment {
-    // Change to your desired local path
-    TARGET_DIR = 'C:\\Users\\aditya\\Downloads\\builds'
+    // Change this to the path on your Linux box where you want files copied
+    TARGET_DIR = '/home/jenkins/downloads/builds'
   }
 
   options {
@@ -19,11 +19,12 @@ pipeline {
 
     stage('Build') {
       steps {
-        bat '''
-          if exist build rmdir /s /q build
-          mkdir build
-          rem Your real build commands here
-          echo hello> build\\app.bin
+        sh '''
+          set -e
+          rm -rf build
+          mkdir -p build
+          # Replace this with your actual build command(s)
+          echo "hello" > build/app.bin
         '''
       }
     }
@@ -37,9 +38,11 @@ pipeline {
 
   post {
     success {
-      bat '''
-        if not exist "%TARGET_DIR%" mkdir "%TARGET_DIR%"
-        xcopy /y /e /i build "%TARGET_DIR%\\"
+      // Copy to your local drop folder on the same machine
+      sh '''
+        set -e
+        mkdir -p "${TARGET_DIR}"
+        cp -r build/* "${TARGET_DIR}/"
       '''
       echo "Artifacts copied to ${env.TARGET_DIR}"
     }
